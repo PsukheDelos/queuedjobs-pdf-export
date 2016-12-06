@@ -2,7 +2,7 @@
   "name": "silverstripe/queuedjobs-pdf-export",
   "description": "Export PDFs using QueuedJobs",
   "type": "silverstripe-module",
-  "keywords": ["silverstripe", "jobs", "csv", "export"],
+  "keywords": ["silverstripe", "jobs", "pdf", "export"],
   "license": "BSD-3-Clause",
   "authors": [
     {
