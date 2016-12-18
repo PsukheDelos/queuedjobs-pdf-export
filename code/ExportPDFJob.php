@@ -12,8 +12,9 @@ class ExportPDFJob extends AbstractQueuedJob implements QueuedJob {
      * Constructor
      */
     public function __construct() {
-//        $this->pages =  Page::get();
+        //$this->pages =  Page::get();
         $this->pages = Versioned::get_by_stage('Page', 'Live');
+        $this->pages2 = Page::get();
     }
 
     /**
@@ -27,11 +28,31 @@ class ExportPDFJob extends AbstractQueuedJob implements QueuedJob {
      * Process export to PDF
      */
     public function process() {
+//        var_dump($this->pages->count());
+
+//        var_dump($this->pages->first()->getClassName());
+
         $this->pages->each(function($obj){
 
-            SSViewer::set_theme('default');
-            $obj->RenderWith('Page');
-            ModelAsController::controller_for($obj)->generatePDF();
+//            var_dump(Config::inst());
+//            die;
+
+//            var_dump($obj);
+//SSViewer::set_theme('d');
+
+
+//            Config::inst()->update('SSViewer', 'theme', 'default');
+//            var_dump(Config::inst()->get('SSViewer', 'theme'));
+            var_dump($obj->ClassName);
+
+
+//            die;
+
+
+
+//            SSViewer::set_theme('default');
+//            $obj->RenderWith('Page');
+//            ModelAsController::controller_for($obj)->generatePDF();
 // $this->
 //            $ch = curl_init();
 //
