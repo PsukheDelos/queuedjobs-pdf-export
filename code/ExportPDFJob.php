@@ -14,7 +14,6 @@ class ExportPDFJob extends AbstractQueuedJob implements QueuedJob
      */
     public function __construct()
     {
-        //$this->pages =  Page::get();
         //Get all Live Pages
         $this->pages = Versioned::get_by_stage('Page', 'Live');
     }
@@ -27,6 +26,17 @@ class ExportPDFJob extends AbstractQueuedJob implements QueuedJob
         return 'Export all pages to PDF';
     }
 
+    public function setup(){
+        parent::setup();
+        /**
+         * Clear the styling requirements.
+         * Because we are launching the job from the CMS, the Controller will attempt to use the CMS styling
+         * instead of the website's selected theme.
+         * By clearing the requirements, we remove the CMS styling.
+         **/
+        Requirements::clear();
+    }
+
     /**
      * Process export to PDF
      */
@@ -34,31 +44,21 @@ class ExportPDFJob extends AbstractQueuedJob implements QueuedJob
     {
         //@TODO: Limit this to processing 100 pages, then create a new job to process next 100 until done.
         //this is one possible albeit hacky solution, would still need a work around for home page
-//        $this->pages->each(function ($page) {
-//            Director::test($page->AbsoluteLink() . 'downloadpdf');
-//        });
+        //        $this->pages->each(function ($page) {
+        //            Director::test($page->AbsoluteLink() . 'downloadpdf');
+        //        });
 
 
-        $oldEnabled = Config::inst()->get('SSViewer', 'theme_enabled');
-        $oldTheme = Config::inst()->get('SSViewer', 'theme');
 
         Config::inst()->update('SSViewer', 'theme_enabled', true);
-        Config::inst()->update('SSViewer', 'theme', 'new'); //experiment to manually set theme while processing pdf
 
-
-        //This is main piece of code
-        //--------------------------
-        $this->pages->limit(1)->each(function ($page) { //limiting to 1 page while testing
+        // Iterate through pages and generate PDFs
+        $this->pages->limit(10)->each(function ($page) { //limiting to 10 pages while testing
 
             $page_controller = ModelAsController::controller_for($page);
             $page_controller->generatePDF();
 
         });
-        //--------------------------
-
-        Config::inst()->update('SSViewer', 'theme_enabled', $oldEnabled);
-        Config::inst()->update('SSViewer', 'theme', $oldTheme);
-
 
         $this->isComplete = true;
         return;
