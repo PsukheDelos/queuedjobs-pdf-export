@@ -1,8 +1,9 @@
 {
-  "name": "silverstripe/queuedjobs-pdf-export",
+  "name": "psukhedelos/queuedjobs-pdf-export",
   "description": "Export PDFs using QueuedJobs",
   "type": "silverstripe-module",
-  "keywords": ["silverstripe", "jobs", "pdf", "export"],
+  "homepage": "https://github.com/PsukheDelos/queuedjobs-pdf-export/",
+  "keywords": ["silverstripe", "jobs", "pdf", "export", "cwp"],
   "license": "BSD-3-Clause",
   "authors": [
     {
