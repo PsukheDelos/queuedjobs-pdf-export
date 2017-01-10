@@ -61,7 +61,7 @@ class ExportPDFJob extends AbstractQueuedJob implements QueuedJob
             Requirements::clear();
             Requirements::clear_combined_files();
 
-            $page_controller =  ModelAsController::controller_for($page)->generatePDF();
+            $page_controller = ModelAsController::controller_for($page);
             $page_controller->generatePDF();
 
         });
