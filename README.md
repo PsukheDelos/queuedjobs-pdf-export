@@ -6,6 +6,7 @@ Glen Peek
 
 ## Requirements
 
+* CWP 
 * SilverStripe Queued Jobs Module 2.x
 * This module requires that pdf_export is enabled. For example, you may include in your config.yml:
    
