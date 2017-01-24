@@ -2,7 +2,16 @@
 
 ## Maintainer Contact
 
-Glen Peek
+[Glen Peek](mailto:glen@silverstripe.com?Subject=[SilverStripe]%20Queued%20Jobs%20PDF%20Export%20Module "Email Glen")
+
+## Use
+By default, this job starts at the first page and produces PDFs in batches of 20
+
+If you would like to create a custom job, enter the desired batch size as the first parameter and the Page ID of the page you'd like the job to start on as the second parameter.
+
+In the example below, we have specified to run the job in batches of 42 starting at Page 1024. 
+![alt text](docs/en/_images/example.png "ExportPDFJob Example")
+
 
 ## Requirements
 
@@ -21,6 +30,7 @@ Glen Peek
 ## Version info
 
 The master branch of this module is currently aiming for SilverStripe 3.x compatibility
+
 
 ## Documentation
 
