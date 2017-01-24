@@ -12,21 +12,20 @@
  */
 class ExportPDFJob extends AbstractQueuedJob implements QueuedJob
 {
-
-    //Export PDF Variables
-    protected $pages;
-    protected $pageID;
-    protected $batchSize;
-
     /**
      * Constructor
      */
-    public function __construct($batchSize = 5, $pageID = 0) {
-        //Get all Live Pages
-        $this->pageID = $pageID;
-        $this->batchSize = $batchSize;
-        $this->pages = Versioned::get_by_stage('Page', 'Live')->where("\"SiteTree_Live\".\"ID\" > ".$pageID)->sort('ID ASC')->limit($this->batchSize);
+    public function __construct($batchSize = 20, $startPageID = 0) {
+        /**
+         * Default - batchSize: 20, startPage: 0
+         * We need this extra check because an empty string is passed to empty parameters instead of null during Job construction
+         **/
+        $this->batchSize = $batchSize ?: 20;
+        $this->startPageID = $startPageID ?: 0;
+        //Get batchSize number of pages starting at the Page with ID $startPageID
+        $this->pages = Versioned::get_by_stage('Page', 'Live')->where("\"SiteTree_Live\".\"ID\" >= " . $this->startPageID)->sort('ID ASC')->limit($this->batchSize);
     }
+
 
     /**
      * @return string
@@ -55,21 +54,16 @@ class ExportPDFJob extends AbstractQueuedJob implements QueuedJob
      */
     public function process()
     {
-        //this is one possible albeit hacky solution, would still need a work around for home page
-        //        $this->pages->each(function ($page) {
-        //            Director::test($page->AbsoluteLink() . 'downloadpdf');
-        //        });
-
 
         // If dataList / fields has not been populated as part of setup then exit.
-//        if(empty($this->pages) || $this->totalSteps <= 0) {
-//            $this->addMessage("No Live Pages found", 'ERROR');
-//            $this->isComplete = true;
-//            return;
-//        }
+        if($this->totalSteps <= 0) {
+            $this->addMessage("No Live Pages found", 'ERROR');
+            $this->isComplete = true;
+            return;
+        }
 
         Config::inst()->update('SSViewer', 'theme_enabled', true);
-
+        $this->message = "";
         // Iterate through pages and generate PDFs
         $this->pages->each(function ($page) {
 
@@ -85,15 +79,22 @@ class ExportPDFJob extends AbstractQueuedJob implements QueuedJob
             $page_controller = ModelAsController::controller_for($page);
             $page_controller->generatePDF();
 
+            $this->startPageID = $page->ID;
             $this->currentStep++;
-            $this->pageID = $page->id;
+
+            $this->message =  $this->message . "[".$page->ID."] ";
+
         });
 
+        $this->addMessage("Processed Pages: ".$this->message);
 
-            $export = new ExportPDFJob($this->batchSize, $this->pageID);
+        //Check if there are more Pages to process before creating a new job
+        if(Versioned::get_by_stage('Page', 'Live')->where("\"SiteTree_Live\".\"ID\" > " . $this->startPageID)->sort('ID ASC')->limit(1)->count() > 0) {
+            $export = new ExportPDFJob($this->batchSize, ++$this->startPageID);
             singleton('QueuedJobService')->queueJob($export, time());
+        }
 
-            $this->isComplete = true;
-            $this->jobFinished();
-    }
+        $this->isComplete = true;
+        $this->jobFinished();
+}
 }
