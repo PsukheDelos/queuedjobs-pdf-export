@@ -76,13 +76,18 @@ class ExportPDFJob extends AbstractQueuedJob implements QueuedJob
             Requirements::clear();
             Requirements::clear_combined_files();
 
-            $page_controller = ModelAsController::controller_for($page);
-            $page_controller->generatePDF();
+            //@TODO: try/catch will handle exceptions, but will need to figure out how to handle fatal errors
+            try {
+                $page_controller = ModelAsController::controller_for($page);
+                $page_controller->generatePDF();
+                $this->message =  $this->message . "[".$page->ID."] ";
+            } catch (Exception $e) {
+                $this->addMessage("Failed to generate PDF for Page: ".$page->Title." [".$page->ID."]. Caught Exception: ".$e->getMessage(), 'ERROR');
+            }
 
             $this->startPageID = $page->ID;
             $this->currentStep++;
 
-            $this->message =  $this->message . "[".$page->ID."] ";
 
         });
 
